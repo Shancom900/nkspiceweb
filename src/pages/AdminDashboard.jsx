@@ -281,24 +281,24 @@ const AdminDashboard = ({
             className={`nav-btn ${activeTab === 'products' ? 'active' : ''}`}
             onClick={() => setActiveTab('products')}
           >
-            <Package size={20} /> Products
+            <Package size={20} /> <span className="nav-text">Products</span>
           </button>
           <button 
             className={`nav-btn ${activeTab === 'orders' ? 'active' : ''}`}
             onClick={() => setActiveTab('orders')}
           >
-            <ShoppingBag size={20} /> Orders
+            <ShoppingBag size={20} /> <span className="nav-text">Orders</span>
           </button>
           <button 
             className={`nav-btn ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
           >
-            <Settings size={20} /> Settings
+            <Settings size={20} /> <span className="nav-text">Settings</span>
           </button>
         </nav>
         <div className="sidebar-footer">
           <button className="nav-btn logout-btn" onClick={handleLogout}>
-            <LogOut size={20} /> Logout
+            <LogOut size={20} /> <span className="nav-text">Logout</span>
           </button>
         </div>
       </aside>

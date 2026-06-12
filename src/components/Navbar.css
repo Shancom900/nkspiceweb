@@ -86,3 +86,19 @@
   color: var(--primary-red);
   background: rgba(230, 57, 70, 0.1);
 }
+
+@media (max-width: 576px) {
+  .nav-logo {
+    font-size: 1.2rem;
+    gap: 0.35rem;
+  }
+  .nav-logo-image {
+    height: 28px !important;
+  }
+  .nav-links {
+    gap: 1rem;
+  }
+  .nav-link {
+    font-size: 0.85rem;
+  }
+}

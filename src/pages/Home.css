@@ -305,8 +305,8 @@
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 2.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 2rem;
 }
 
 .empty-storefront {
@@ -661,5 +661,34 @@
   }
   .hero-title {
     font-size: 2.8rem;
+  }
+  .hero-subtitle {
+    font-size: 1rem;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+  }
+  .hero-stats {
+    padding: 0.75rem 1.5rem;
+    gap: 1.5rem;
+  }
+  .product-grid {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2.2rem;
+  }
+  .hero-stats {
+    flex-direction: column;
+    gap: 0.75rem;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 280px;
+  }
+  .stat-divider {
+    width: 80%;
+    height: 1px;
   }
 }
