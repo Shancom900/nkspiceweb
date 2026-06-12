@@ -4,6 +4,8 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import { db } from './firebase';
+import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import './index.css';
 
 const DEFAULT_PRODUCTS = [
@@ -45,42 +47,67 @@ const DEFAULT_SETTINGS = {
 };
 
 function App() {
-  const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem('siteSettings');
-    return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
-  });
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [products, setProducts] = useState(DEFAULT_PRODUCTS);
+  const [employees, setEmployees] = useState([]);
+  const [orders, setOrders] = useState([]);
 
-  const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('products');
-    return saved ? JSON.parse(saved) : DEFAULT_PRODUCTS;
-  });
-
-  const [employees, setEmployees] = useState(() => {
-    const saved = localStorage.getItem('employees');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('orders');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  // Keep localStorage in sync when states change
+  // 1. Settings listener
   useEffect(() => {
-    localStorage.setItem('siteSettings', JSON.stringify(settings));
-  }, [settings]);
+    const unsub = onSnapshot(doc(db, "settings", "site"), (docSnap) => {
+      if (docSnap.exists()) {
+        setSettings(docSnap.data());
+      } else {
+        setDoc(doc(db, "settings", "site"), DEFAULT_SETTINGS);
+      }
+    });
+    return () => unsub();
+  }, []);
 
+  // 2. Products listener
   useEffect(() => {
-    localStorage.setItem('products', JSON.stringify(products));
-  }, [products]);
+    const unsub = onSnapshot(collection(db, "products"), (snapshot) => {
+      if (snapshot.empty) {
+        DEFAULT_PRODUCTS.forEach(async (p) => {
+          await setDoc(doc(db, "products", p.id.toString()), p);
+        });
+      } else {
+        const prodList = [];
+        snapshot.forEach(docSnap => {
+          prodList.push(docSnap.data());
+        });
+        prodList.sort((a, b) => a.id - b.id);
+        setProducts(prodList);
+      }
+    });
+    return () => unsub();
+  }, []);
 
+  // 3. Employees listener
   useEffect(() => {
-    localStorage.setItem('employees', JSON.stringify(employees));
-  }, [employees]);
+    const unsub = onSnapshot(collection(db, "employees"), (snapshot) => {
+      const empList = [];
+      snapshot.forEach(docSnap => {
+        empList.push(docSnap.data());
+      });
+      empList.sort((a, b) => a.id - b.id);
+      setEmployees(empList);
+    });
+    return () => unsub();
+  }, []);
 
+  // 4. Orders listener
   useEffect(() => {
-    localStorage.setItem('orders', JSON.stringify(orders));
-  }, [orders]);
+    const unsub = onSnapshot(collection(db, "orders"), (snapshot) => {
+      const ordList = [];
+      snapshot.forEach(docSnap => {
+        ordList.push(docSnap.data());
+      });
+      ordList.sort((a, b) => b.id - a.id);
+      setOrders(ordList);
+    });
+    return () => unsub();
+  }, []);
 
   // Dynamically update document title based on SEO Title setting
   useEffect(() => {

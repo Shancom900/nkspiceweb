@@ -19,6 +19,8 @@ import {
   User,
   Globe
 } from 'lucide-react';
+import { db } from '../firebase';
+import { doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import './AdminDashboard.css';
 
 const GALLERY_PRESETS = [
@@ -45,9 +47,15 @@ const AdminDashboard = ({
   const navigate = useNavigate();
 
   // Order Status & Delete management handlers
-  const handleToggleOrderStatus = (id) => {
-    const updated = orders.map(o => o.id === id ? { ...o, status: o.status === 'Completed' ? 'Pending' : 'Completed' } : o);
-    setOrders(updated);
+  const handleToggleOrderStatus = async (id) => {
+    const orderToUpdate = orders.find(o => o.id === id);
+    if (!orderToUpdate) return;
+    const newStatus = orderToUpdate.status === 'Completed' ? 'Pending' : 'Completed';
+    try {
+      await updateDoc(doc(db, "orders", id.toString()), { status: newStatus });
+    } catch (err) {
+      console.error("Error updating order status:", err);
+    }
   };
 
   const handleDeleteOrder = (id) => {
@@ -89,12 +97,16 @@ const AdminDashboard = ({
   };
 
   // General Settings Submit
-  const handleSaveSettings = (e) => {
+  const handleSaveSettings = async (e) => {
     e.preventDefault();
     setSettingsSuccess('');
-    setSettings(localSettings);
-    setSettingsSuccess('Site settings updated successfully!');
-    setTimeout(() => setSettingsSuccess(''), 4000);
+    try {
+      await setDoc(doc(db, "settings", "site"), localSettings);
+      setSettingsSuccess('Site settings updated successfully!');
+      setTimeout(() => setSettingsSuccess(''), 4000);
+    } catch (err) {
+      console.error("Error saving settings:", err);
+    }
   };
 
   // Upload custom site logo image
@@ -114,7 +126,7 @@ const AdminDashboard = ({
   };
 
   // Employee registration submit
-  const handleAddEmployee = (e) => {
+  const handleAddEmployee = async (e) => {
     e.preventDefault();
     setEmployeeError('');
     setEmployeeSuccess('');
@@ -142,11 +154,15 @@ const AdminDashboard = ({
       createdAt: new Date().toLocaleDateString()
     };
 
-    setEmployees(prev => [...prev, newEmployee]);
-    setEmployeeSuccess(`Employee "${empEmail}" created successfully!`);
-    setEmpEmail('');
-    setEmpPassword('');
-    setTimeout(() => setEmployeeSuccess(''), 4000);
+    try {
+      await setDoc(doc(db, "employees", newEmployee.id.toString()), newEmployee);
+      setEmployeeSuccess(`Employee "${empEmail}" created successfully!`);
+      setEmpEmail('');
+      setEmpPassword('');
+      setTimeout(() => setEmployeeSuccess(''), 4000);
+    } catch (err) {
+      setEmployeeError('Error adding employee: ' + err.message);
+    }
   };
 
   // Delete an employee account
@@ -173,24 +189,23 @@ const AdminDashboard = ({
   };
 
   // Save product edits (create or update)
-  const handleSaveProduct = (e) => {
+  const handleSaveProduct = async (e) => {
     e.preventDefault();
     setProductSuccess('');
 
-    const exists = products.some(p => p.id === editingProduct.id);
-    let updatedProducts;
-
-    if (exists) {
-      updatedProducts = products.map(p => p.id === editingProduct.id ? editingProduct : p);
-      setProductSuccess('Product details updated successfully!');
-    } else {
-      updatedProducts = [...products, editingProduct];
-      setProductSuccess('Product added successfully!');
+    try {
+      await setDoc(doc(db, "products", editingProduct.id.toString()), editingProduct);
+      const exists = products.some(p => p.id === editingProduct.id);
+      if (exists) {
+        setProductSuccess('Product details updated successfully!');
+      } else {
+        setProductSuccess('Product added successfully!');
+      }
+      setEditingProduct(null);
+      setTimeout(() => setProductSuccess(''), 4000);
+    } catch (err) {
+      console.error("Error saving product:", err);
     }
-
-    setProducts(updatedProducts);
-    setEditingProduct(null);
-    setTimeout(() => setProductSuccess(''), 4000);
   };
 
   // Delete a product
@@ -199,23 +214,25 @@ const AdminDashboard = ({
   };
 
   // Custom Delete Confirm execution
-  const confirmDeleteAction = () => {
+  const confirmDeleteAction = async () => {
     if (!deletingItem) return;
 
-    if (deletingItem.type === 'product') {
-      const updated = products.filter(p => p.id !== deletingItem.id);
-      setProducts(updated);
-      setProductSuccess('Product deleted successfully!');
-      setTimeout(() => setProductSuccess(''), 4000);
-    } else if (deletingItem.type === 'order') {
-      const updated = orders.filter(o => o.id !== deletingItem.id);
-      setOrders(updated);
-      setProductSuccess('Order record deleted successfully!');
-      setTimeout(() => setProductSuccess(''), 4000);
-    } else if (deletingItem.type === 'employee') {
-      setEmployees(prev => prev.filter(emp => emp.id !== deletingItem.id));
-      setEmployeeSuccess('Employee account deleted successfully!');
-      setTimeout(() => setEmployeeSuccess(''), 4000);
+    try {
+      if (deletingItem.type === 'product') {
+        await deleteDoc(doc(db, "products", deletingItem.id.toString()));
+        setProductSuccess('Product deleted successfully!');
+        setTimeout(() => setProductSuccess(''), 4000);
+      } else if (deletingItem.type === 'order') {
+        await deleteDoc(doc(db, "orders", deletingItem.id.toString()));
+        setProductSuccess('Order record deleted successfully!');
+        setTimeout(() => setProductSuccess(''), 4000);
+      } else if (deletingItem.type === 'employee') {
+        await deleteDoc(doc(db, "employees", deletingItem.id.toString()));
+        setEmployeeSuccess('Employee account deleted successfully!');
+        setTimeout(() => setEmployeeSuccess(''), 4000);
+      }
+    } catch (err) {
+      console.error("Error deleting item:", err);
     }
 
     setDeletingItem(null);

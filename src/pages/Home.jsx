@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingCart, X, User, Phone, CheckCircle, ShieldAlert, Sparkles, Flame } from 'lucide-react';
+import { db } from '../firebase';
+import { doc, setDoc } from 'firebase/firestore';
 import './Home.css';
 
 const Home = ({ products = [], orders = [], setOrders }) => {
@@ -19,7 +21,7 @@ const Home = ({ products = [], orders = [], setOrders }) => {
     setOrderQuantity(1);
   };
 
-  const handlePlaceOrder = (e) => {
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
     if (!fullName || !phoneNumber || !orderQuantity) return;
 
@@ -36,8 +38,12 @@ const Home = ({ products = [], orders = [], setOrders }) => {
       status: 'Pending'
     };
 
-    setOrders(prev => [newOrder, ...prev]);
-    setCheckoutStep('success');
+    try {
+      await setDoc(doc(db, "orders", newOrder.id.toString()), newOrder);
+      setCheckoutStep('success');
+    } catch (err) {
+      console.error("Error submitting purchase request:", err);
+    }
   };
 
   return (
