@@ -1,0 +1,88 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+
+.text-red {
+  color: var(--primary-red);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary-red);
+}
+
+.cart-icon {
+  position: relative;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.cart-icon:hover {
+  color: var(--primary-red);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: var(--primary-red);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.admin-link {
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.03);
+}
+
+.admin-link:hover {
+  color: var(--primary-red);
+  background: rgba(230, 57, 70, 0.1);
+}

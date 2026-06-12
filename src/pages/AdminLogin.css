@@ -1,0 +1,83 @@
+.login-container {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: radial-gradient(circle at center, rgba(230, 57, 70, 0.05) 0%, transparent 70%);
+}
+
+.login-box {
+  width: 100%;
+  max-width: 440px;
+  padding: 3rem 2.5rem;
+  border-radius: 20px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.icon-wrapper {
+  width: 72px;
+  height: 72px;
+  background: rgba(230, 57, 70, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  border: 1px solid rgba(230, 57, 70, 0.2);
+}
+
+.login-header h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.login-header p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.error-message {
+  background: rgba(230, 57, 70, 0.15);
+  border: 1px solid rgba(230, 57, 70, 0.3);
+  color: #ff8a8a;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 0.95rem;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.input-field.with-icon {
+  padding-left: 3rem;
+}
+
+.input-field:focus + .input-icon,
+.input-field:not(:placeholder-shown) + .input-icon {
+  color: var(--primary-red);
+}
+
+.login-btn {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  font-size: 1.1rem;
+}
