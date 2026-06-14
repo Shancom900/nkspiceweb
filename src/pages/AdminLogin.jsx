@@ -23,7 +23,7 @@ const AdminLogin = () => {
       const user = userCredential.user;
       
       // Check if logged in user is the primary admin
-      const isAdmin = user.email.toLowerCase() === 'admin@spicemarket.com';
+      const isAdmin = user.email.toLowerCase().startsWith('admin@');
       
       localStorage.setItem('currentUser', JSON.stringify({
         email: user.email,
@@ -59,7 +59,7 @@ const AdminLogin = () => {
               <input 
                 type="email" 
                 className="input-field with-icon" 
-                placeholder="admin@spicemarket.com"
+                placeholder="admin@nktrading.online"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

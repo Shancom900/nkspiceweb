@@ -126,7 +126,7 @@ function App() {
 
   // 3. Employees listener - only if logged in admin
   useEffect(() => {
-    if (!currentUser || currentUser.email.toLowerCase() !== 'admin@spicemarket.com') {
+    if (!currentUser || !currentUser.email.toLowerCase().startsWith('admin@')) {
       setEmployees([]);
       return;
     }

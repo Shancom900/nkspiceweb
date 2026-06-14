@@ -45,7 +45,7 @@ const AdminDashboard = ({
   setOrders
 }) => {
   const [activeTab, setActiveTab] = useState('products');
-  const [currentUser, setCurrentUser] = useState({ email: 'admin@spicemarket.com', role: 'Admin' });
+  const [currentUser, setCurrentUser] = useState({ email: 'admin@nktrading.online', role: 'Admin' });
   const navigate = useNavigate();
 
   // Order Status & Delete management handlers
@@ -143,8 +143,8 @@ const AdminDashboard = ({
       return;
     }
 
-    if (empEmail.toLowerCase() === 'admin@spicemarket.com') {
-      setEmployeeError('This email is reserved for the primary administrator.');
+    if (empEmail.toLowerCase().startsWith('admin@')) {
+      setEmployeeError('This email is reserved for administrators.');
       return;
     }
 
