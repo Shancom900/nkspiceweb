@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { db, firebaseConfig, auth } from '../firebase';
 import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { initializeAuth, inMemoryPersistence, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import './AdminDashboard.css';
 
@@ -161,9 +161,12 @@ const AdminDashboard = ({
 
     let tempApp;
     try {
-      // Create user securely in Firebase Auth using a secondary temporary app instance
+      // Create user securely in Firebase Auth using a secondary temporary app instance with in-memory persistence
+      // to avoid overwriting the logged-in admin's active session in shared IndexedDB/localStorage.
       tempApp = initializeApp(firebaseConfig, `TempApp-${Date.now()}`);
-      const tempAuth = getAuth(tempApp);
+      const tempAuth = initializeAuth(tempApp, {
+        persistence: inMemoryPersistence
+      });
       const userCredential = await createUserWithEmailAndPassword(tempAuth, empEmail, empPassword);
       
       const newEmployee = {
