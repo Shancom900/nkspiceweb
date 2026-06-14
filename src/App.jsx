@@ -99,7 +99,8 @@ function App() {
       if (docSnap.exists()) {
         setSettings(docSnap.data());
       } else {
-        setDoc(doc(db, "settings", "site"), DEFAULT_SETTINGS);
+        // Use client-side default, do not automatically write to DB to avoid infinite loops
+        setSettings(DEFAULT_SETTINGS);
       }
     });
     return () => unsub();
@@ -109,9 +110,14 @@ function App() {
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "products"), (snapshot) => {
       if (snapshot.empty) {
-        DEFAULT_PRODUCTS.forEach(async (p) => {
-          await setDoc(doc(db, "products", p.id.toString()), p);
-        });
+        // Only seed default products if logged in as admin
+        if (currentUser && currentUser.email.toLowerCase().startsWith('admin@')) {
+          DEFAULT_PRODUCTS.forEach(async (p) => {
+            await setDoc(doc(db, "products", p.id.toString()), p);
+          });
+        } else {
+          setProducts(DEFAULT_PRODUCTS);
+        }
       } else {
         const prodList = [];
         snapshot.forEach(docSnap => {
@@ -122,7 +128,7 @@ function App() {
       }
     });
     return () => unsub();
-  }, []);
+  }, [currentUser]);
 
   // 3. Employees listener - only if logged in admin
   useEffect(() => {
