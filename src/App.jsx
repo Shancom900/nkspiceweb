@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import AdminLogin from './pages/AdminLogin';
@@ -47,17 +47,48 @@ const DEFAULT_SETTINGS = {
   seoTitle: 'SpiceMarket - Premium Red Chillies'
 };
 
+// Route Guards for Auth Security
+const ProtectedRoute = ({ user, loading, children }) => {
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--primary-dark)', color: 'white' }}>
+        <p style={{ letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>Loading secure session...</p>
+      </div>
+    );
+  }
+  if (!user) {
+    return <Navigate to="/admin-login" replace />;
+  }
+  return children;
+};
+
+const PublicRoute = ({ user, loading, children }) => {
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--primary-dark)', color: 'white' }}>
+        <p style={{ letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>Loading session...</p>
+      </div>
+    );
+  }
+  if (user) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+  return children;
+};
+
 function App() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [products, setProducts] = useState(DEFAULT_PRODUCTS);
   const [employees, setEmployees] = useState([]);
   const [orders, setOrders] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // 0. Auth state listener
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
+      setLoading(false);
     });
     return () => unsub();
   }, []);
@@ -143,20 +174,29 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<Home products={products} orders={orders} setOrders={setOrders} />} />
-            <Route path="/admin-login" element={<AdminLogin employees={employees} />} />
+            <Route 
+              path="/admin-login" 
+              element={
+                <PublicRoute user={currentUser} loading={loading}>
+                  <AdminLogin />
+                </PublicRoute>
+              } 
+            />
             <Route 
               path="/admin/*" 
               element={
-                <AdminDashboard 
-                  settings={settings} 
-                  setSettings={setSettings} 
-                  products={products} 
-                  setProducts={setProducts} 
-                  employees={employees} 
-                  setEmployees={setEmployees} 
-                  orders={orders}
-                  setOrders={setOrders}
-                />
+                <ProtectedRoute user={currentUser} loading={loading}>
+                  <AdminDashboard 
+                    settings={settings} 
+                    setSettings={setSettings} 
+                    products={products} 
+                    setProducts={setProducts} 
+                    employees={employees} 
+                    setEmployees={setEmployees} 
+                    orders={orders}
+                    setOrders={setOrders}
+                  />
+                </ProtectedRoute>
               } 
             />
           </Routes>

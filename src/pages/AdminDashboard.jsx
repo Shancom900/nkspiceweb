@@ -19,7 +19,7 @@ import {
   User,
   Globe
 } from 'lucide-react';
-import { db, firebaseConfig } from '../firebase';
+import { db, firebaseConfig, auth } from '../firebase';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
@@ -93,7 +93,12 @@ const AdminDashboard = ({
     setLocalSettings({ ...settings });
   }, [settings]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+    } catch (err) {
+      console.error("Error signing out:", err);
+    }
     localStorage.removeItem('currentUser');
     navigate('/admin-login');
   };
