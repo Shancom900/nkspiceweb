@@ -5,7 +5,7 @@ import { auth } from '../firebase';
 import { Lock, Mail } from 'lucide-react';
 import './AdminLogin.css';
 
-const AdminLogin = ({ employees = [] }) => {
+const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -18,7 +18,7 @@ const AdminLogin = ({ employees = [] }) => {
     setLoading(true);
     
     try {
-      // 1. Authenticate securely using Firebase Authentication (no credentials in source code!)
+      // Authenticate securely using Firebase Authentication (no credentials in source code!)
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
@@ -32,18 +32,7 @@ const AdminLogin = ({ employees = [] }) => {
       
       setTimeout(() => navigate('/admin/dashboard'), 1000);
     } catch (firebaseError) {
-      // 2. Fallback: Check local storage registered employees (only works on devices where admin created them)
-      const isEmployee = employees.some(emp => emp.email.toLowerCase() === email.toLowerCase() && emp.password === password);
-      
-      if (isEmployee) {
-        localStorage.setItem('currentUser', JSON.stringify({
-          email,
-          role: 'Employee'
-        }));
-        setTimeout(() => navigate('/admin/dashboard'), 1000);
-      } else {
-        setError('Invalid credentials. Please try again.');
-      }
+      setError('Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -2,14 +2,14 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDPafLZSIHdiIsaNzwmcb-MQTcdZ7ZxeVE",
-  authDomain: "shanu-5b259.firebaseapp.com",
-  projectId: "shanu-5b259",
-  storageBucket: "shanu-5b259.firebasestorage.app",
-  messagingSenderId: "583669230864",
-  appId: "1:583669230864:web:b7843a3502c92459020995",
-  measurementId: "G-13GSXV30ZZ"
+export const firebaseConfig = {
+  apiKey: "AIzaSyAKmff_RzxA-d-44KhG3SMpaCFdtgxAJhs",
+  authDomain: "nktradingweb.firebaseapp.com",
+  projectId: "nktradingweb",
+  storageBucket: "nktradingweb.firebasestorage.app",
+  messagingSenderId: "244170448862",
+  appId: "1:244170448862:web:34c25674e2d63f262a474f",
+  measurementId: "G-K5XWXH5TPV"
 };
 
 // Initialize Firebase

@@ -4,7 +4,8 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
-import { db } from './firebase';
+import { db, auth } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import './index.css';
 
@@ -51,6 +52,15 @@ function App() {
   const [products, setProducts] = useState(DEFAULT_PRODUCTS);
   const [employees, setEmployees] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // 0. Auth state listener
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsub();
+  }, []);
 
   // 1. Settings listener
   useEffect(() => {
@@ -83,8 +93,12 @@ function App() {
     return () => unsub();
   }, []);
 
-  // 3. Employees listener
+  // 3. Employees listener - only if logged in admin
   useEffect(() => {
+    if (!currentUser || currentUser.email.toLowerCase() !== 'admin@spicemarket.com') {
+      setEmployees([]);
+      return;
+    }
     const unsub = onSnapshot(collection(db, "employees"), (snapshot) => {
       const empList = [];
       snapshot.forEach(docSnap => {
@@ -92,12 +106,18 @@ function App() {
       });
       empList.sort((a, b) => a.id - b.id);
       setEmployees(empList);
+    }, (error) => {
+      console.error("Error subscribing to employees:", error);
     });
     return () => unsub();
-  }, []);
+  }, [currentUser]);
 
-  // 4. Orders listener
+  // 4. Orders listener - only if authenticated
   useEffect(() => {
+    if (!currentUser) {
+      setOrders([]);
+      return;
+    }
     const unsub = onSnapshot(collection(db, "orders"), (snapshot) => {
       const ordList = [];
       snapshot.forEach(docSnap => {
@@ -105,9 +125,11 @@ function App() {
       });
       ordList.sort((a, b) => b.id - a.id);
       setOrders(ordList);
+    }, (error) => {
+      console.error("Error subscribing to orders:", error);
     });
     return () => unsub();
-  }, []);
+  }, [currentUser]);
 
   // Dynamically update document title based on SEO Title setting
   useEffect(() => {

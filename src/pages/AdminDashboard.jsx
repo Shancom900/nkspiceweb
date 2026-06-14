@@ -19,7 +19,9 @@ import {
   User,
   Globe
 } from 'lucide-react';
-import { db } from '../firebase';
+import { db, firebaseConfig } from '../firebase';
+import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import './AdminDashboard.css';
 
@@ -147,21 +149,34 @@ const AdminDashboard = ({
       return;
     }
 
-    const newEmployee = {
-      id: Date.now(),
-      email: empEmail,
-      password: empPassword,
-      createdAt: new Date().toLocaleDateString()
-    };
-
+    let tempApp;
     try {
-      await setDoc(doc(db, "employees", newEmployee.id.toString()), newEmployee);
+      // Create user securely in Firebase Auth using a secondary temporary app instance
+      tempApp = initializeApp(firebaseConfig, `TempApp-${Date.now()}`);
+      const tempAuth = getAuth(tempApp);
+      const userCredential = await createUserWithEmailAndPassword(tempAuth, empEmail, empPassword);
+      
+      const newEmployee = {
+        id: userCredential.user.uid,
+        email: empEmail,
+        createdAt: new Date().toLocaleDateString()
+      };
+
+      await setDoc(doc(db, "employees", newEmployee.id), newEmployee);
       setEmployeeSuccess(`Employee "${empEmail}" created successfully!`);
       setEmpEmail('');
       setEmpPassword('');
       setTimeout(() => setEmployeeSuccess(''), 4000);
     } catch (err) {
       setEmployeeError('Error adding employee: ' + err.message);
+    } finally {
+      if (tempApp) {
+        try {
+          await tempApp.delete();
+        } catch (e) {
+          console.error("Error deleting temporary app instance:", e);
+        }
+      }
     }
   };
 
