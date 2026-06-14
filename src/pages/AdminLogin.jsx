@@ -25,11 +25,6 @@ const AdminLogin = () => {
       // Check if logged in user is the primary admin
       const isAdmin = user.email.toLowerCase().startsWith('admin@');
       
-      localStorage.setItem('currentUser', JSON.stringify({
-        email: user.email,
-        role: isAdmin ? 'Admin' : 'Employee'
-      }));
-      
       setTimeout(() => navigate('/admin/dashboard'), 1000);
     } catch (firebaseError) {
       setError('Invalid credentials. Please try again.');

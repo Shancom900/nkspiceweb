@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { db, firebaseConfig, auth } from '../firebase';
 import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import './AdminDashboard.css';
 
@@ -80,12 +80,18 @@ const AdminDashboard = ({
   const [productSuccess, setProductSuccess] = useState('');
   const [deletingItem, setDeletingItem] = useState(null);
 
-  // Load Current Logged In User details
+  // Load Current Logged In User details directly from Firebase Auth
   useEffect(() => {
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
-    }
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const isAdmin = user.email.toLowerCase().startsWith('admin@');
+        setCurrentUser({
+          email: user.email,
+          role: isAdmin ? 'Admin' : 'Employee'
+        });
+      }
+    });
+    return () => unsub();
   }, []);
 
   // Update Settings local state if props change
@@ -99,7 +105,6 @@ const AdminDashboard = ({
     } catch (err) {
       console.error("Error signing out:", err);
     }
-    localStorage.removeItem('currentUser');
     navigate('/admin-login');
   };
 
