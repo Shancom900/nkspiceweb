@@ -168,7 +168,7 @@ function App() {
   }, [settings.seoTitle]);
 
   return (
-    <Router>
+    <Router basename="/nkspiceweb">
       <div className="app-container">
         <Navbar settings={settings} />
         <main>
